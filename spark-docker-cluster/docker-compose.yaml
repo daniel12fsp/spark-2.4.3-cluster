@@ -1,0 +1,42 @@
+version: "3.3"
+services:
+  spark-master-ondemand:
+    build: .
+    ports:
+      - "9090:8080"
+      - "7077:7077"
+    environment:
+      - SPARK_WORKLOAD=master
+      - SPARK_LOCAL_IP=spark-master-ondemand
+    hostname: spark-master-ondemand
+    external_links:
+      - "host.docker.internal:host-gateway"
+
+  spark-worker-a-spot:
+    build: .
+    depends_on:
+      - spark-master-ondemand
+    environment:
+      - SPARK_MASTER=spark://spark-master-ondemand:7077
+      - SPARK_WORKLOAD=worker
+      - SPARK_WORKER_CORES=1
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_DRIVER_MEMORY=1G
+      - SPARK_EXECUTOR_MEMORY=1G
+    hostname: spark-worker-a-spot
+    external_links:
+      - "host.docker.internal:host-gateway"
+
+  spark-worker-b-spot:
+    build: .
+    depends_on:
+      - spark-master-ondemand
+    environment:
+      - SPARK_MASTER=spark://spark-master-ondemand:7077
+      - SPARK_WORKLOAD=worker
+      - SPARK_WORKER_CORES=1
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_DRIVER_MEMORY=1G
+      - SPARK_EXECUTOR_MEMORY=1G
+    hostname: spark-worker-b-spot
+
